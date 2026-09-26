@@ -86,6 +86,16 @@ p { margin: 0 0 24px; }
   border-bottom: 1px solid var(--rule);
 }
 dt, dd { margin: 0; }
+.menu-category {
+  margin: 48px 0 0;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.menu-prices + .menu-category { margin-top: 36px; }
+.menu-prices > div { grid-template-columns: minmax(0, 1fr) max-content; }
+.menu-prices dd { text-align: right; white-space: nowrap; }
 .text-link { display: inline-flex; align-items: center; min-height: 44px; }
 .inner-page .site-header { min-height: 0; padding: 64px 24px 48px; }
 .inner-page .site-title { font-size: clamp(28px, 5vw, 40px); }

@@ -1,0 +1,149 @@
+/* pepel moco — static site v0.1 */
+:root {
+  color-scheme: light;
+  --paper: #f7f6f2;
+  --ink: #222;
+  --muted: #666;
+  --rule: #d8d6d0;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 32px; }
+body {
+  margin: 0;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+a { color: inherit; text-underline-offset: 0.3em; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
+.site-header {
+  min-height: 65vh;
+  min-height: 65svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 72px 24px;
+  text-align: center;
+}
+.site-title {
+  margin: 0;
+  font-size: clamp(32px, 7vw, 72px);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  line-height: 1.5;
+}
+.site-title a { text-decoration: none; }
+.site-description {
+  margin: 24px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.navigation {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+.navigation a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.navigation a[aria-current="page"], .navigation a:hover { text-decoration: underline; }
+.content { width: min(760px, calc(100% - 48px)); margin: 100px auto 140px; }
+.section + .section { margin-top: 120px; }
+.section { scroll-margin-top: 32px; }
+.section-title, .page-title {
+  margin: 0 0 40px;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+}
+.page-title { font-size: 26px; }
+p { margin: 0 0 24px; }
+.notice h3 { margin: 0 0 16px; font-size: 20px; font-weight: 400; }
+.notice-label, .note, .link-pending { font-size: 13px; color: var(--muted); }
+.details { margin: 24px 0 32px; }
+.details > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+}
+dt, dd { margin: 0; }
+.text-link { display: inline-flex; align-items: center; min-height: 44px; }
+.inner-page .site-header { min-height: 0; padding: 64px 24px 48px; }
+.inner-page .site-title { font-size: clamp(28px, 5vw, 40px); }
+.inner-page .site-description { margin-top: 16px; }
+.site-footer {
+  padding: 72px 24px;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+.reservation {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+}
+.reservation:hover { background: var(--ink); color: var(--paper); }
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  padding: 12px;
+  background: var(--paper);
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: translateY(0); }
+@media (max-width: 600px) {
+  .site-header { min-height: 55vh; min-height: 55svh; padding: 48px 20px; }
+  .content { width: calc(100% - 40px); margin: 64px auto 88px; }
+  .section + .section { margin-top: 80px; }
+  .section-title, .page-title { margin-bottom: 32px; }
+  .notice h3 { font-size: 18px; }
+  .details > div { gap: 16px; }
+  .inner-page .site-header { padding: 48px 20px 36px; }
+  .site-footer { padding: 48px 20px; }
+  .reservation {
+    left: max(16px, env(safe-area-inset-left, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media print {
+  body { padding-bottom: 0; }
+  .reservation, .skip-link { display: none; }
+  .site-header { min-height: 0; }
+}

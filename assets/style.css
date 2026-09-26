@@ -33,7 +33,7 @@ a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
 }
 .site-title {
   margin: 0;
-  font-size: clamp(32px, 7vw, 72px);
+  font-size: clamp(28px, 5vw, 40px);
   font-weight: 400;
   letter-spacing: 0.15em;
   line-height: 1.5;
@@ -66,6 +66,7 @@ a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
 .content { width: min(760px, calc(100% - 48px)); margin: 100px auto 140px; }
 .section + .section { margin-top: 120px; }
 .section { scroll-margin-top: 32px; }
+.shop-photo { display: block; width: 100%; height: auto; }
 .section-title, .page-title {
   margin: 0 0 40px;
   font-size: 20px;
@@ -93,6 +94,7 @@ dt, dd { margin: 0; }
   letter-spacing: 0.14em;
   color: var(--muted);
 }
+.first-visit-title { margin: 0 0 12px; }
 .menu-prices + .menu-category { margin-top: 36px; }
 .menu-prices > div { grid-template-columns: minmax(0, 1fr) max-content; }
 .menu-prices dd { text-align: right; white-space: nowrap; }

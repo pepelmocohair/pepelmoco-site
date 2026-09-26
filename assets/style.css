@@ -22,8 +22,8 @@ a { color: inherit; text-underline-offset: 0.3em; }
 a:hover { text-decoration-thickness: 2px; }
 a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
 .site-header {
-  min-height: 65vh;
-  min-height: 65svh;
+  min-height: 52vh;
+  min-height: 52svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -41,7 +41,7 @@ a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
 .site-title a { text-decoration: none; }
 .site-description {
   margin: 24px 0 0;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   color: var(--muted);
 }
@@ -128,7 +128,7 @@ dt, dd { margin: 0; }
 }
 .skip-link:focus { transform: translateY(0); }
 @media (max-width: 600px) {
-  .site-header { min-height: 55vh; min-height: 55svh; padding: 48px 20px; }
+  .site-header { min-height: 44vh; min-height: 44svh; padding: 48px 20px; }
   .content { width: calc(100% - 40px); margin: 64px auto 88px; }
   .section + .section { margin-top: 80px; }
   .section-title, .page-title { margin-bottom: 32px; }

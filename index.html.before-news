@@ -31,22 +31,6 @@
     <!-- INFORMATION EDIT END -->
     </section>
 
-    <section class="section" id="news" aria-labelledby="news-title">
-    <h2 class="section-title" id="news-title">NEWS</h2>
-
-    <!-- NEWS EDIT START -->
-    <article class="notice">
-      <p class="news-date">2026.09.27</p>
-      <h3>HPをリニューアルしました。</h3>
-      <p>pepel mocoのホームページをリニューアルしました。</p>
-      <p>メニューやアクセス、ご予約はこちらからご確認いただけます。</p>
-    </article>
-
-
-    <!-- NEWS EDIT END -->
-
-  </section>
-
     <div class="section">
       <img class="shop-photo" src="assets/images/shop-flower.webp" alt="pepel moco 店内の蘭" width="1800" height="1200" loading="lazy" decoding="async">
     </div>
@@ -70,4 +54,3 @@
   <a class="reservation" href="reservation.html" aria-label="予約のご案内">RESERVATION　/ ご予約 <span aria-hidden="true">↗</span></a>
 </body>
 </html>
-

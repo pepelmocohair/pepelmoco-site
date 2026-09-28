@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+set -u
+
+echo
+echo "======================================"
+echo "  pepel moco Git Sync"
+echo "======================================"
+echo
+
+# PCごとのリポジトリ位置を自動判定
+if [ -d "$HOME/dev/reservation-gas" ]; then
+    # Chromebook
+    REPOS=(
+        "$HOME/dev/reservation"
+        "$HOME/dev/reservation-gas"
+    )
+
+    [ -d "$HOME/dev/pepelmoco-site" ] &&
+        REPOS+=("$HOME/dev/pepelmoco-site")
+
+elif [ -d "$HOME/pepelmoco-reservation" ]; then
+    # ThinkPad
+    REPOS=(
+        "$HOME/pepelmoco-reservation"
+        "$HOME/pepelmoco-site"
+    )
+
+    [ -d "$HOME/reservation" ] &&
+        REPOS+=("$HOME/reservation")
+
+else
+    echo "❌ pepel moco のGitリポジトリが見つかりません。"
+    exit 1
+fi
+
+for repo in "${REPOS[@]}"; do
+    echo
+    echo "--------------------------------------"
+    echo "📁 $(basename "$repo")"
+    echo "   $repo"
+    echo "--------------------------------------"
+
+    cd "$repo" || continue
+
+    if [ ! -d ".git" ]; then
+        echo "⚠ Gitリポジトリではありません。スキップします。"
+        continue
+    fi
+
+    # 未コミット変更確認
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "⚠ 未コミットの変更があります。"
+        git status --short
+        echo
+        echo "→ 安全のため pull しません。"
+        continue
+    fi
+
+    echo "✓ Working tree clean"
+
+    # GitHubの状態取得
+    echo "↻ GitHubを確認中..."
+    if ! git fetch --quiet; then
+        echo "❌ git fetch に失敗しました。"
+        continue
+    fi
+
+    branch="$(git branch --show-current)"
+
+    if [ -z "$branch" ]; then
+        echo "⚠ ブランチを取得できません。"
+        continue
+    fi
+
+    upstream="$(git rev-parse --abbrev-ref '@{u}' 2>/dev/null || true)"
+
+    if [ -z "$upstream" ]; then
+        echo "⚠ upstream が設定されていません。"
+        continue
+    fi
+
+    counts="$(git rev-list --left-right --count "$upstream...HEAD")"
+    behind="$(echo "$counts" | awk '{print $1}')"
+    ahead="$(echo "$counts" | awk '{print $2}')"
+
+    echo "Branch : $branch"
+    echo "Ahead  : $ahead"
+    echo "Behind : $behind"
+
+    if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
+        echo "🚨 GitHubとローカルの両方に別の変更があります。"
+        echo "→ 自動処理しません。手動確認してください。"
+
+    elif [ "$ahead" -gt 0 ]; then
+        echo "⬆ ローカルに未pushのcommitがあります。"
+        echo "→ 自動pushはしません。"
+        echo "   git push でGitHubへ送れます。"
+
+    elif [ "$behind" -gt 0 ]; then
+        echo "⬇ GitHubに新しいcommitがあります。"
+
+        if git pull --ff-only; then
+            echo "✓ pull 完了"
+        else
+            echo "❌ pullできませんでした。手動確認してください。"
+        fi
+
+    else
+        echo "✓ GitHubと同期済み"
+    fi
+done
+
+echo
+echo "======================================"
+echo "  pepel-sync 完了"
+echo "======================================"
+echo

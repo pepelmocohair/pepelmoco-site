@@ -1,118 +1,232 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""Sync three pepel moco repositories only after every preflight passes."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from urllib.parse import urlsplit
 
-set -u
+NAMES = ('reservation', 'reservation-gas', 'pepelmoco-site')
+SKIP = {'node_modules', '__pycache__', 'venv', 'env', 'vendor'}
 
-echo
-echo "======================================"
-echo "  pepel moco Git Sync"
-echo "======================================"
-echo
 
-# PCごとのリポジトリ位置を自動判定
-if [ -d "$HOME/dev/reservation-gas" ]; then
-    # Chromebook
-    REPOS=(
-        "$HOME/dev/reservation"
-        "$HOME/dev/reservation-gas"
-    )
+def git(path, *args):
+    # No hooks, fsmonitor callbacks, interactive credentials or autostash.
+    env = dict(os.environ, GIT_TERMINAL_PROMPT='0')
+    try:
+        p = subprocess.run(['git', '-c', 'core.hooksPath=/dev/null',
+                            '-c', 'core.fsmonitor=false', '-c', 'merge.autoStash=false',
+                            '-C', str(path), *args], env=env, text=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(str(exc)) from exc
+    if p.returncode:
+        raise RuntimeError(p.stderr.strip() or p.stdout.strip() or 'git failed')
+    return p.stdout.strip()
 
-    [ -d "$HOME/dev/pepelmoco-site" ] &&
-        REPOS+=("$HOME/dev/pepelmoco-site")
 
-elif [ -d "$HOME/pepelmoco-reservation" ]; then
-    # ThinkPad
-    REPOS=(
-        "$HOME/pepelmoco-reservation"
-        "$HOME/pepelmoco-site"
-    )
+def identity(url):
+    m = re.fullmatch(r'git@github\.com:pepelmocohair/([^/]+?)(?:\.git)?', url)
+    if m:
+        return m.group(1) if m.group(1) in NAMES else None
+    u = urlsplit(url)
+    if u.scheme not in ('https', 'ssh') or u.hostname != 'github.com':
+        return None
+    if u.query or u.fragment or u.password or (u.scheme == 'https' and u.username):
+        return None
+    if u.scheme == 'ssh' and u.username != 'git':
+        return None
+    try:
+        if u.port not in (None, 443 if u.scheme == 'https' else 22):
+            return None
+    except ValueError:
+        return None
+    m = re.fullmatch(r'/pepelmocohair/([^/]+?)(?:\.git)?/?', u.path)
+    return m.group(1) if m and m.group(1) in NAMES else None
 
-    [ -d "$HOME/reservation" ] &&
-        REPOS+=("$HOME/reservation")
 
-else
-    echo "❌ pepel moco のGitリポジトリが見つかりません。"
-    exit 1
-fi
+def root(path):
+    return Path(git(path, 'rev-parse', '--show-toplevel')).resolve()
 
-for repo in "${REPOS[@]}"; do
-    echo
-    echo "--------------------------------------"
-    echo "📁 $(basename "$repo")"
-    echo "   $repo"
-    echo "--------------------------------------"
 
-    cd "$repo" || continue
+def discover(roots):
+    found = {n: set() for n in NAMES}
+    errors = []
+    for base in roots:
+        base = Path(base).expanduser().resolve()
+        if not base.is_dir():
+            errors.append('探索場所が存在しません: ' + str(base))
+            continue
+        def walk_error(exc):
+            errors.append('探索失敗: ' + str(exc))
+        for current, dirs, files in os.walk(base, followlinks=False, onerror=walk_error):
+            if '.git' in dirs or '.git' in files:
+                try:
+                    actual = root(current)
+                except RuntimeError:
+                    print('WARN: Gitルートとして読めない探索候補を除外: ' + current)
+                    dirs[:] = [d for d in dirs if not d.startswith('.') and d not in SKIP]
+                    continue
+                try:
+                    for remote in git(actual, 'remote').splitlines():
+                        for url in git(actual, 'config', '--get-all', 'remote.' + remote + '.url').splitlines():
+                            name = identity(url)
+                            if name:
+                                found[name].add(actual)
+                except RuntimeError as exc:
+                    errors.append(f'Git探索失敗 {current}: {exc}')
+                dirs[:] = []
+            else:
+                dirs[:] = [d for d in dirs if not d.startswith('.') and d not in SKIP]
+    return found, errors
 
-    if [ ! -d ".git" ]; then
-        echo "⚠ Gitリポジトリではありません。スキップします。"
-        continue
-    fi
 
-    # 未コミット変更確認
-    if [ -n "$(git status --porcelain)" ]; then
-        echo "⚠ 未コミットの変更があります。"
-        git status --short
-        echo
-        echo "→ 安全のため pull しません。"
-        continue
-    fi
+def summary(states, success, check_only=False):
+    print('\n結果')
+    for n in NAMES:
+        s = states[n]
+        print(f"{s.get('result', 'STOP'):7} {n}: {s.get('reason', '')}")
+    print(('全3リポジトリの事前検査に合格しました（更新なし）。' if check_only else '全3リポジトリの同期を確認しました。') if success else
+          'STOP: 同期未完了。自動修復せず停止しました。')
 
-    echo "✓ Working tree clean"
 
-    # GitHubの状態取得
-    echo "↻ GitHubを確認中..."
-    if ! git fetch --quiet; then
-        echo "❌ git fetch に失敗しました。"
-        continue
-    fi
+def local_check(path, name, report=False):
+    actual = root(path)
+    urls = git(actual, 'config', '--get-all', 'remote.origin.url').splitlines()
+    branch = git(actual, 'rev-parse', '--abbrev-ref', 'HEAD')
+    dirty = bool(git(actual, 'status', '--porcelain=v1', '--untracked-files=all'))
+    if report:
+        print(f'{name}: path={actual} branch={branch} working_tree={"dirty" if dirty else "clean"} origin={urls!r} fetch=未実施 ahead/behind=未確認')
+    if len(urls) != 1 or identity(urls[0]) != name:
+        raise RuntimeError('想定外origin: ' + repr(urls))
+    if branch == 'HEAD':
+        raise RuntimeError('detached HEAD')
+    if branch != 'main':
+        raise RuntimeError('main以外のブランチ: ' + branch)
+    if dirty:
+        raise RuntimeError('dirty（未commit・未追跡の変更あり）')
+    # Git operations in progress must not be resumed automatically.
+    for marker in ('MERGE_HEAD', 'CHERRY_PICK_HEAD', 'REVERT_HEAD', 'rebase-merge', 'rebase-apply', 'sequencer'):
+        marker_path = Path(git(actual, 'rev-parse', '--git-path', marker))
+        if not marker_path.is_absolute():
+            marker_path = actual / marker_path
+        if marker_path.exists():
+            raise RuntimeError('Git操作が進行中: ' + marker)
+    return actual, urls[0], git(actual, 'rev-parse', 'HEAD')
 
-    branch="$(git branch --show-current)"
 
-    if [ -z "$branch" ]; then
-        echo "⚠ ブランチを取得できません。"
-        continue
-    fi
+def run():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--root', action='append', help='探索ルート（繰り返し可、省略時はホーム）')
+    parser.add_argument('--repo', action='append', default=[], metavar='NAME=PATH', help='remote検証する配置を明示')
+    parser.add_argument('--config', type=Path, help='NAME: PATHを持つJSON（省略時 ~/.config/pepel-sync/repos.json があれば使用）')
+    parser.add_argument('--check', action='store_true', help='fetch・検査のみ。作業ツリーのfast-forwardは行わない')
+    args = parser.parse_args()
+    states = {n: {'result': 'STOP', 'reason': '未検査'} for n in NAMES}
+    explicit = {}
+    config = args.config or Path.home() / '.config/pepel-sync/repos.json'
+    try:
+        if config.exists():
+            explicit = json.loads(config.read_text())
+            if not isinstance(explicit, dict) or any(n not in NAMES or not isinstance(p, str) for n, p in explicit.items()):
+                raise ValueError('設定は対象NAMEとPATHのJSONオブジェクトにしてください')
+        elif args.config:
+            raise ValueError('設定ファイルが存在しません: ' + str(config))
+        for item in args.repo:
+            n, p = item.split('=', 1)
+            if n not in NAMES or not p:
+                raise ValueError('不正な--repo: ' + item)
+            explicit[n] = p
+        # All explicit locations bypass discovery, but never bypass remote checks.
+        found, errors = discover(args.root or [Path.home()]) if len(explicit) < 3 else ({n: set() for n in NAMES}, [])
+        paths = {}
+        for n in NAMES:
+            if n in explicit:
+                paths[n] = Path(explicit[n]).expanduser().resolve()
+            elif len(found[n]) == 1:
+                paths[n] = next(iter(found[n]))
+            else:
+                states[n]['reason'] = ('未発見' if not found[n] else
+                                       '複数コピー。--repoで指定: ' + ', '.join(map(str, sorted(found[n]))))
+        if errors or len(paths) != 3:
+            for n in paths:
+                states[n]['reason'] = '全3件の発見が完了しないため未同期: ' + str(paths[n])
+            for e in errors:
+                print('STOP:', e)
+            summary(states, False)
+            return 1
+        if len(set(paths.values())) != 3:
+            raise ValueError('同じGitルートを複数リポジトリに指定できません')
+        blocked = False
+        for n in NAMES:
+            try:
+                p, url, head = local_check(paths[n], n, report=True)
+                states[n].update(path=p, origin=url, head=head, reason='ローカル検査OK、fetch未実施')
+            except RuntimeError as exc:
+                states[n]['reason'] = 'ローカル検査失敗（detached HEAD等を含む）: ' + str(exc)
+                print(f'STOP {n}: {states[n]["reason"]}')
+                blocked = True
+        if blocked:
+            summary(states, False)
+            return 1
+        # Fetch all first, never update one checkout while another is still unverified.
+        for n in NAMES:
+            s = states[n]
+            try:
+                git(s['path'], 'fetch', '--no-tags', 'origin', 'refs/heads/main:refs/remotes/origin/main')
+                s['target'] = git(s['path'], 'rev-parse', 'refs/remotes/origin/main')
+                ahead, behind = map(int, git(s['path'], 'rev-list', '--left-right', '--count', 'HEAD...refs/remotes/origin/main').split())
+                s.update(ahead=ahead, behind=behind)
+                print(f'{n}: fetch=OK ahead={ahead} behind={behind} diverged={"yes" if ahead and behind else "no"}')
+                if ahead:
+                    s['reason'] = 'diverged' if behind else 'ahead（未pushコミット）'
+                    blocked = True
+                else:
+                    s['reason'] = f'事前検査OK（behind={behind}）、まだ未同期'
+            except RuntimeError as exc:
+                s['reason'] = 'fetch/比較失敗: ' + str(exc)
+                blocked = True
+        if blocked:
+            summary(states, False)
+            return 1
+        # Recheck all immediately before the first fast-forward.
+        for n in NAMES:
+            s = states[n]
+            p, url, head = local_check(s['path'], n)
+            if head != s['head'] or url != s['origin'] or git(p, 'rev-parse', 'refs/remotes/origin/main') != s['target']:
+                raise RuntimeError('検査中に状態が変化しました: ' + n)
+        if args.check:
+            for s in states.values():
+                s.update(result='OK', reason=f'検査合格。behind={s["behind"]}（--checkのため更新なし）')
+            summary(states, True, check_only=True)
+            return 0
+        for n in NAMES:
+            s = states[n]
+            try:
+                p, url, head = local_check(s['path'], n)
+                if head != s['head'] or url != s['origin'] or git(p, 'rev-parse', 'refs/remotes/origin/main') != s['target']:
+                    raise RuntimeError('更新直前に状態が変化しました')
+                if s['behind']:
+                    # Exact inspected commit; no merge commit, rebase, stash or second fetch.
+                    git(p, 'merge', '--ff-only', '--no-edit', s['target'])
+                _, _, final_head = local_check(p, n)
+                if final_head != s['target']:
+                    raise RuntimeError('更新後HEADが検査済みorigin/mainと不一致')
+                s.update(result='UPDATED' if s['behind'] else 'OK', reason='main一致・clean')
+            except RuntimeError as exc:
+                s.update(result='STOP', reason='更新/事後検査失敗: ' + str(exc))
+                summary(states, False)
+                return 1
+        summary(states, True)
+        return 0
+    except (ValueError, OSError, RuntimeError) as exc:
+        print('STOP:', exc)
+        summary(states, False)
+        return 1
 
-    upstream="$(git rev-parse --abbrev-ref '@{u}' 2>/dev/null || true)"
 
-    if [ -z "$upstream" ]; then
-        echo "⚠ upstream が設定されていません。"
-        continue
-    fi
-
-    counts="$(git rev-list --left-right --count "$upstream...HEAD")"
-    behind="$(echo "$counts" | awk '{print $1}')"
-    ahead="$(echo "$counts" | awk '{print $2}')"
-
-    echo "Branch : $branch"
-    echo "Ahead  : $ahead"
-    echo "Behind : $behind"
-
-    if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
-        echo "🚨 GitHubとローカルの両方に別の変更があります。"
-        echo "→ 自動処理しません。手動確認してください。"
-
-    elif [ "$ahead" -gt 0 ]; then
-        echo "⬆ ローカルに未pushのcommitがあります。"
-        echo "→ 自動pushはしません。"
-        echo "   git push でGitHubへ送れます。"
-
-    elif [ "$behind" -gt 0 ]; then
-        echo "⬇ GitHubに新しいcommitがあります。"
-
-        if git pull --ff-only; then
-            echo "✓ pull 完了"
-        else
-            echo "❌ pullできませんでした。手動確認してください。"
-        fi
-
-    else
-        echo "✓ GitHubと同期済み"
-    fi
-done
-
-echo
-echo "======================================"
-echo "  pepel-sync 完了"
-echo "======================================"
-echo
+if __name__ == '__main__':
+    sys.exit(run())

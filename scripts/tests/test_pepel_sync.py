@@ -45,6 +45,27 @@ class SyncTests(unittest.TestCase):
   # Target clone inside the invalid placeholder must still be found.
   self.paths['reservation'].rename(junk/'nested repo');self.paths['reservation']=junk/'nested repo'
   r=self.run_sync();self.assertEqual(r.returncode,0,r.stdout+r.stderr);self.assertIn('WARN:',r.stdout)
+ def test_repeat_sync_after_fast_forward(self):
+  for n in ['reservation','reservation-gas']:self.remote_advance(n)
+  before={n:self.head(n) for n in NAMES}
+  check=self.run_sync('--check');self.assertEqual(check.returncode,0,check.stdout+check.stderr)
+  for n in ['reservation','reservation-gas']:
+   self.assertIn(n+': fetch=OK ahead=0 behind=1 diverged=no',check.stdout)
+   self.assertEqual(self.head(n),before[n])
+  first=self.run_sync();self.assertEqual(first.returncode,0,first.stdout+first.stderr)
+  for n in ['reservation','reservation-gas']:
+   self.assertIn('UPDATED '+n+':',first.stdout)
+   self.assertEqual(self.head(n),self.git(self.paths[n],'rev-parse','refs/remotes/origin/main'))
+   self.assertNotEqual(self.head(n),before[n])
+  updated={n:self.head(n) for n in NAMES}
+  for args in [(),(),('--check',)]:
+   again=self.run_sync(*args);self.assertEqual(again.returncode,0,again.stdout+again.stderr)
+   self.assertNotIn('UPDATED',again.stdout)
+   for n in NAMES:
+    self.assertIn(n+': fetch=OK ahead=0 behind=0 diverged=no',again.stdout)
+    self.assertIn('OK      '+n+':',again.stdout)
+    self.assertEqual(self.head(n),updated[n])
+    self.assertEqual(self.git(self.paths[n],'status','--porcelain'),'')
  def test_clean(self):
   r=self.run_sync();self.assertEqual(r.returncode,0,r.stdout+r.stderr);self.assertEqual(r.stdout.count('main一致・clean'),3)
  def test_dirty(self):self.stopped(lambda:(self.paths['reservation']/'untracked').write_text('dirty'))

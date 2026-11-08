@@ -9,19 +9,23 @@
 </head>
 <body class="home">
   <a class="skip-link" href="#main">本文へ移動</a>
-  <header class="site-header">
+  <header class="site-header grid">
     <h1 class="site-title"><a href="index.html">pepel moco</a></h1>
-    <p class="site-description">HAIR SALON / FUKUI / TSURUGA</p>
+    <p class="site-description">美容室　福井県敦賀市</p>
+    <nav class="navigation" aria-label="メインナビゲーション">
+      <a href="index.html" aria-current="page">トップ</a>
+      <a href="menu.html">メニュー・料金</a>
+      <a href="access.html">店舗情報</a>
+      <a href="reservation.html">ご予約</a>
+    </nav>
   </header>
-  <nav class="navigation" aria-label="メインナビゲーション">
-      <a href="index.html" aria-current="page">HOME</a>
-      <a href="menu.html">MENU</a>
-      <a href="access.html">ACCESS</a>
-  </nav>
+
   <main id="main" class="content" tabindex="-1">
-    <section class="section" aria-labelledby="information-title">
-      <h2 class="section-title" id="information-title">INFORMATION</h2>
-      <!-- INFORMATION EDIT START: pepel コマンドで自動更新 -->
+    <!-- 最初の画面：今月のお休みと写真 -->
+    <div class="opening grid">
+      <section class="opening__info" aria-labelledby="information-title">
+        <h2 class="visually-hidden" id="information-title">お休みのお知らせ</h2>
+        <!-- INFORMATION EDIT START: pepel コマンドで自動更新 -->
     <article class="notice">
       <h3>2026年10月のお休み</h3>
       <dl class="details">
@@ -29,10 +33,16 @@
       </dl>
     </article>
     <!-- INFORMATION EDIT END -->
-    </section>
+        <a class="text-link" href="access.html">受付時間・定休日 <span aria-hidden="true">→</span></a>
+      </section>
+      <figure class="opening__photo">
+        <img src="assets/images/shop-flower.webp" alt="pepel moco 店内の蘭" width="1800" height="1200" decoding="async" fetchpriority="high">
+      </figure>
+    </div>
 
-    <section class="section" id="news" aria-labelledby="news-title">
-    <h2 class="section-title" id="news-title">NEWS</h2>
+    <section class="sheet grid" id="news" aria-labelledby="news-title">
+      <div class="sheet__rule" aria-hidden="true"></div>
+      <div class="sheet__head"><h2 class="section-title" id="news-title">お知らせ</h2></div>
 
     <!-- NEWS EDIT START -->
     <article class="notice">
@@ -45,29 +55,57 @@
 
     <!-- NEWS EDIT END -->
 
-  </section>
+    </section>
 
-    <div class="section">
-      <img class="shop-photo" src="assets/images/shop-flower.webp" alt="pepel moco 店内の蘭" width="1800" height="1200" loading="lazy" decoding="async">
+    <!-- PHOTOS: <figure class="plate"> を追加するだけで、縦横比を保ったまま順に配置されます。
+         横長の写真を大きく見せたい場合のみ class="plate plate--wide" にします。
+         plate--placeholder は写真差し替えまでの仮枠です。差し替え時に削除してください。 -->
+    <div class="plates grid" aria-label="写真">
+      <figure class="plate plate--placeholder"><img src="assets/images/placeholder-portrait.webp" alt="" width="900" height="1200" loading="lazy" decoding="async"></figure>
+      <figure class="plate plate--placeholder"><img src="assets/images/placeholder-square.webp" alt="" width="1000" height="1000" loading="lazy" decoding="async"></figure>
+      <figure class="plate plate--placeholder"><img src="assets/images/placeholder-tall.webp" alt="" width="800" height="1100" loading="lazy" decoding="async"></figure>
+      <figure class="plate plate--placeholder"><img src="assets/images/placeholder-wide.webp" alt="" width="1600" height="900" loading="lazy" decoding="async"></figure>
     </div>
 
-    <section class="section" id="instagram" aria-labelledby="instagram-title">
-      <h2 class="section-title" id="instagram-title">INSTAGRAM</h2>
+    <section class="sheet grid" id="shop" aria-labelledby="shop-title">
+      <div class="sheet__rule" aria-hidden="true"></div>
+      <div class="sheet__head"><h2 class="section-title" id="shop-title">店舗</h2></div>
+      <dl class="details">
+        <div><dt>住所</dt><dd>〒914-0125　福井県敦賀市若葉町2-1115</dd></div>
+        <div><dt>受付時間</dt><dd>平日 10:30–18:00（最終受付）<br>土日 10:00–18:00（最終受付）</dd></div>
+        <div><dt>定休日</dt><dd>毎週月曜＋第1・第3日曜</dd></div>
+      </dl>
+      <div class="link-row">
+        <a class="text-link" href="menu.html">メニュー・料金 <span aria-hidden="true">→</span></a>
+        <a class="text-link" href="access.html">アクセス・駐車場 <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section class="sheet grid" id="instagram" aria-labelledby="instagram-title">
+      <div class="sheet__rule" aria-hidden="true"></div>
+      <div class="sheet__head"><h2 class="section-title" id="instagram-title">Instagram</h2></div>
       <p>ヘアスタイルや日々の様子を、Instagramで。</p>
       <!-- INSTAGRAM URL: 公式アカウントのリンク先。 -->
-      <a class="text-link" href="https://www.instagram.com/pepelmocohair/">INSTAGRAM ↗</a>
+      <a class="text-link" href="https://www.instagram.com/pepelmocohair/">@pepelmocohair <span aria-hidden="true">↗</span></a>
     </section>
 
-    <section class="section" id="reservation" aria-labelledby="reservation-title">
-      <h2 class="section-title" id="reservation-title">RESERVATION</h2>
-      <p>ご予約は、こちらから。</p>
-      <a class="text-link" href="reservation.html">RESERVATION ↗</a>
+    <section class="sheet grid" id="reservation" aria-labelledby="reservation-title">
+      <div class="sheet__rule" aria-hidden="true"></div>
+      <div class="sheet__head"><h2 class="section-title" id="reservation-title">ご予約</h2></div>
+      <p>ご予約は、LINEまたはWEBから。初めての方は、予約ページの案内をご覧ください。</p>
+      <a class="text-link" href="reservation.html">予約のご案内 <span aria-hidden="true">→</span></a>
     </section>
   </main>
-  <footer class="site-footer">
-    <p>PEPEL MOCO<br>HAIR SALON / FUKUI / TSURUGA</p>
+
+  <footer class="site-footer grid">
+    <p class="footer-name">pepel moco</p>
+    <p class="footer-address">有限会社美容室ペペルモコ<br>〒914-0125 福井県敦賀市若葉町2-1115</p>
+    <p class="footer-links">
+      <a href="menu.html">メニュー・料金</a>
+      <a href="access.html">店舗情報</a>
+      <a href="index.html#instagram">Instagram</a>
+    </p>
   </footer>
-  <a class="reservation" href="reservation.html" aria-label="予約のご案内">RESERVATION　/ ご予約 <span aria-hidden="true">↗</span></a>
+  <a class="reservation" href="reservation.html" aria-label="予約のご案内">ご予約 <span aria-hidden="true">↗</span></a>
 </body>
 </html>
-

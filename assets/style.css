@@ -1,134 +1,303 @@
-/* pepel moco — static site v0.1 */
+/* pepel moco — static site v0.2 (editorial prototype)
+   外部フォント・JavaScript・ビルド不要。
+   レイアウトは12列グリッド。見出しを左の細い列、本文を中央の列に置く。 */
+
 :root {
   color-scheme: light;
-  --paper: #f7f6f2;
-  --ink: #222;
-  --muted: #666;
-  --rule: #d8d6d0;
+  --paper: #f3f1eb;
+  --ink: #1e1d1a;
+  --muted: #6d6a63;
+  --rule: #cfcbc1;
+  --tint: #e6e2d8;
+  --serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", "IPAMincho", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "Noto Sans JP", "Helvetica Neue", sans-serif;
+  --margin: clamp(20px, 4vw, 56px);
+  --gutter: clamp(12px, 2vw, 28px);
 }
+
 * { box-sizing: border-box; }
-html { scroll-padding-top: 32px; }
+html { scroll-padding-top: 24px; -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   background: var(--paper);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-family: var(--sans);
   font-size: 15px;
-  line-height: 1.9;
+  line-height: 1.95;
+  letter-spacing: 0.02em;
   overflow-wrap: anywhere;
+  font-feature-settings: "palt" 0;
 }
-a { color: inherit; text-underline-offset: 0.3em; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.32em; }
 a:hover { text-decoration-thickness: 2px; }
-a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+p { margin: 0 0 1.2em; }
+dt, dd { margin: 0; }
+h1, h2, h3 { font-weight: 400; margin: 0; }
+
+/* ---------- grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: var(--margin);
+}
+
+/* ---------- header ---------- */
 .site-header {
-  min-height: 52vh;
-  min-height: 52svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 72px 24px;
-  text-align: center;
+  align-items: baseline;
+  padding-top: clamp(20px, 3vw, 36px);
+  padding-bottom: 16px;
 }
 .site-title {
+  grid-column: 1 / span 3;
   margin: 0;
-  font-size: clamp(28px, 5vw, 40px);
-  font-weight: 400;
-  letter-spacing: 0.15em;
-  line-height: 1.5;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
 }
 .site-title a { text-decoration: none; }
 .site-description {
-  margin: 24px 0 0;
-  font-size: 12px;
-  letter-spacing: 0.14em;
+  grid-column: 4 / span 4;
+  margin: 0;
   color: var(--muted);
+  font-size: 12px;
 }
 .navigation {
+  grid-column: 8 / -1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 12px 32px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  gap: 0 clamp(16px, 2.4vw, 32px);
+  font-size: 13px;
 }
 .navigation a {
-  min-height: 44px;
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   text-decoration: none;
 }
-.navigation a[aria-current="page"], .navigation a:hover { text-decoration: underline; }
-.content { width: min(760px, calc(100% - 48px)); margin: 100px auto 140px; }
-.section + .section { margin-top: 120px; }
-.section { scroll-margin-top: 32px; }
-.shop-photo { display: block; width: 100%; height: auto; }
-.section-title, .page-title {
-  margin: 0 0 40px;
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.14em;
+.navigation a[aria-current="page"] { text-decoration: underline; }
+.navigation a:hover { text-decoration: underline; }
+
+/* ---------- opening (top page) ---------- */
+.opening {
+  align-items: end;
+  padding-top: clamp(32px, 7vw, 112px);
 }
-.page-title { font-size: 26px; }
-p { margin: 0 0 24px; }
-.notice h3 { margin: 0 0 16px; font-size: 20px; font-weight: 400; }
-.notice-label, .note, .link-pending { font-size: 13px; color: var(--muted); }
-.details { margin: 24px 0 32px; }
+.opening__info {
+  grid-column: 1 / span 4;
+  padding-right: 8px;
+  grid-row: 1;
+  padding-bottom: 4px;
+}
+.opening__photo {
+  grid-column: 6 / -1;
+  grid-row: 1;
+  margin: 0;
+}
+
+/* ---------- sheet: 見出し列 + 本文列 ---------- */
+.sheet {
+  row-gap: 0;
+  margin-top: clamp(72px, 11vw, 168px);
+  scroll-margin-top: 24px;
+}
+.sheet > * { grid-column: 4 / span 6; }
+.sheet > .sheet__head {
+  grid-column: 1 / span 3;
+  grid-row: 1 / span 40;
+  align-self: start;
+}
+.sheet__wide { grid-column: 4 / -1 !important; }
+.sheet__rule {
+  grid-column: 1 / -1 !important;
+  height: 1px;
+  margin-bottom: 18px;
+  background: var(--rule);
+}
+.sheet__rule + .sheet__head { grid-row: 2 / span 40; }
+
+.section-title,
+.page-title {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.24em;
+}
+.page-title { font-size: 17px; }
+
+/* 見出しは縦組み（PC） */
+@media (min-width: 900px) {
+  .sheet__head .section-title,
+  .sheet__head .page-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    min-height: 6em;
+  }
+}
+
+/* ---------- notices ---------- */
+.notice + .notice { margin-top: 48px; }
+.notice h3 {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.6;
+}
+.news-date {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+.note, .muted { color: var(--muted); font-size: 13px; }
+.lede { font-family: var(--serif); font-size: 17px; line-height: 1.9; }
+
+/* お休み：日付を大きく */
+.opening .notice h3 { font-size: 15px; font-family: var(--sans); color: var(--muted); margin-bottom: 6px; }
+.opening .details { margin: 0; }
+.opening .details > div { grid-template-columns: 1fr; gap: 4px; border: 0; padding: 0; }
+.opening .details dt { font-size: 12px; color: var(--muted); }
+.opening .details dd {
+  font-family: var(--serif);
+  font-size: clamp(20px, 1.9vw, 27px);
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  word-break: auto-phrase;
+}
+.opening__info .text-link { margin-top: 20px; font-size: 13px; }
+
+/* ---------- definition lists ---------- */
+.details { margin: 0 0 32px; }
 .details > div {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 24px;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--rule);
+  grid-template-columns: 8em minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0 15px;
+  border-top: 1px solid var(--rule);
 }
-dt, dd { margin: 0; }
-.menu-category {
-  margin: 48px 0 0;
+.details > div:last-child { border-bottom: 1px solid var(--rule); }
+.details dt { color: var(--muted); font-size: 13px; padding-top: 2px; }
+
+/* ---------- menu ---------- */
+.menu-sheet .menu-category {
+  grid-column: 1 / span 3;
+  margin: 0;
+  padding-top: 14px;
   font-size: 12px;
-  font-weight: 400;
   letter-spacing: 0.14em;
   color: var(--muted);
+  border-top: 1px solid var(--ink);
 }
-.first-visit-title { margin: 0 0 12px; }
-.menu-prices + .menu-category { margin-top: 36px; }
+.menu-sheet .menu-prices {
+  grid-column: 4 / span 6;
+  margin: 0 0 56px;
+  border-top: 1px solid var(--ink);
+}
+.menu-sheet .menu-prices > div:first-child { border-top: 0; }
 .menu-prices > div { grid-template-columns: minmax(0, 1fr) max-content; }
-.menu-prices dd { text-align: right; white-space: nowrap; }
-.text-link { display: inline-flex; align-items: center; min-height: 44px; }
-.inner-page .site-header { min-height: 0; padding: 64px 24px 48px; }
-.inner-page .site-title { font-size: clamp(28px, 5vw, 40px); }
-.inner-page .site-description { margin-top: 16px; }
-.site-footer {
-  padding: 72px 24px;
-  border-top: 1px solid var(--rule);
-  text-align: center;
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+.menu-prices dt { color: var(--ink); font-size: 15px; padding-top: 0; }
+.menu-prices dd {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
+.menu-sheet .first-visit-title { border-top: 0; padding-top: 0; }
+.menu-sheet .first-visit { grid-column: 4 / span 6; margin: 0 0 64px; }
+.menu-sheet .page-title { grid-column: 1 / span 3; margin-bottom: 40px; }
+.menu-sheet .menu-lead { grid-column: 4 / span 6; margin-bottom: 40px; }
+.menu-sheet .note-end { grid-column: 4 / span 6; }
+
+/* ---------- plates (写真) ----------
+   写真は縦横比をそのまま保ち、追加順に位置が巡回する。
+   クラス指定なしで <figure class="plate"> を増やすだけで並ぶ。 */
+.plates {
+  margin-top: clamp(80px, 12vw, 180px);
+  row-gap: clamp(48px, 8vw, 120px);
+  align-items: start;
+}
+.plate { margin: 0; }
+.plate:nth-child(4n + 1) { grid-column: 1 / span 4; }
+.plate:nth-child(4n + 2) { grid-column: 8 / span 3; margin-top: clamp(40px, 10vw, 160px); }
+.plate:nth-child(4n + 3) { grid-column: 3 / span 3; }
+.plate:nth-child(4n + 4) { grid-column: 8 / -1; margin-top: clamp(24px, 5vw, 80px); }
+/* 横長写真は広めに。必要な写真だけに付ける任意クラス。 */
+.plate--wide:nth-child(n) { grid-column: 2 / span 9; margin-top: 0; }
+.plate figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+/* 仮枠（写真差し替えまでの空き枠） */
+.plate--placeholder img { background: var(--tint); }
+
+/* ---------- links ---------- */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+}
+.link-row { display: flex; flex-wrap: wrap; gap: 0 32px; }
+
+/* ---------- reservation page ---------- */
+.way {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 18px 0 22px;
+  border-top: 1px solid var(--rule);
+}
+.way:last-of-type { border-bottom: 1px solid var(--rule); }
+.way h2 { font-family: var(--serif); font-size: 18px; line-height: 1.6; margin-bottom: 6px; }
+.way p { margin-bottom: 4px; }
+
+/* ---------- footer (colophon) ---------- */
+.site-footer {
+  margin-top: clamp(96px, 14vw, 200px);
+  padding-top: 20px;
+  padding-bottom: 40px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.9;
+  row-gap: 24px;
+}
+.site-footer p { margin: 0; }
+.site-footer .footer-name { grid-column: 1 / span 3; color: var(--ink); font-family: var(--serif); font-size: 15px; }
+.site-footer .footer-address { grid-column: 4 / span 4; }
+.site-footer .footer-links { grid-column: 8 / -1; justify-self: end; display: flex; flex-wrap: wrap; gap: 0 24px; }
 .site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- 固定の予約リンク ---------- */
+body { padding-bottom: 0; }
 .reservation {
   position: fixed;
-  right: max(24px, env(safe-area-inset-right, 0px));
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  right: max(20px, env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   z-index: 10;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  min-height: 48px;
-  padding: 12px 24px;
+  gap: 14px;
+  min-height: 44px;
+  padding: 8px 18px;
   border: 1px solid var(--ink);
+  border-radius: 999px;
   background: var(--paper);
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  font-size: 13px;
+  letter-spacing: 0.08em;
   text-decoration: none;
 }
 .reservation:hover { background: var(--ink); color: var(--paper); }
+
 .skip-link {
   position: fixed;
   top: 12px;
@@ -139,23 +308,74 @@ dt, dd { margin: 0; }
   transform: translateY(-200%);
 }
 .skip-link:focus { transform: translateY(0); }
-@media (max-width: 600px) {
-  .site-header { min-height: 44vh; min-height: 44svh; padding: 48px 20px; }
-  .content { width: calc(100% - 40px); margin: 64px auto 88px; }
-  .section + .section { margin-top: 80px; }
-  .section-title, .page-title { margin-bottom: 32px; }
-  .notice h3 { font-size: 18px; }
-  .details > div { gap: 16px; }
-  .inner-page .site-header { padding: 48px 20px 36px; }
-  .site-footer { padding: 48px 20px; }
-  .reservation {
-    left: max(16px, env(safe-area-inset-left, 0px));
-    right: max(16px, env(safe-area-inset-right, 0px));
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  }
+.content:focus { outline: none; }
+
+/* ---------- tablet ---------- */
+@media (max-width: 1080px) {
+  .sheet > * { grid-column: 4 / -1; }
+  .menu-sheet .menu-prices,
+  .menu-sheet .first-visit,
+  .menu-sheet .menu-lead,
+  .menu-sheet .note-end { grid-column: 4 / -1; }
 }
+
+/* ---------- smartphone ---------- */
+@media (max-width: 899px) {
+  .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .site-header { row-gap: 4px; padding-bottom: 8px; }
+  .site-title { grid-column: 1 / span 3; }
+  .site-description { grid-column: 4 / -1; justify-self: end; text-align: right; font-size: 11px; }
+  .navigation { grid-column: 1 / -1; justify-content: flex-start; border-top: 1px solid var(--rule); margin-top: 8px; }
+
+  .opening { padding-top: 20px; row-gap: 32px; }
+  .opening__photo { grid-column: 2 / -1; grid-row: 1; }
+  .opening__info { grid-column: 1 / -1; grid-row: 2; }
+
+  .sheet { margin-top: 88px; }
+  .sheet > *,
+  .sheet > .sheet__head,
+  .sheet__wide { grid-column: 1 / -1 !important; }
+  .sheet > .sheet__head, .sheet__rule + .sheet__head { grid-row: auto; margin-bottom: 20px; }
+
+  .menu-sheet .menu-category,
+  .menu-sheet .menu-prices,
+  .menu-sheet .first-visit,
+  .menu-sheet .menu-lead,
+  .menu-sheet .note-end,
+  .menu-sheet .page-title { grid-column: 1 / -1; }
+  .menu-sheet .menu-category { padding-bottom: 4px; }
+  .menu-sheet .menu-prices { border-top: 0; margin-bottom: 44px; }
+  .menu-sheet .menu-prices > div:first-child { border-top: 1px solid var(--rule); }
+
+  .plates { row-gap: 40px; }
+  .plate:nth-child(4n + 1) { grid-column: 1 / span 5; }
+  .plate:nth-child(4n + 2) { grid-column: 3 / -1; margin-top: 0; }
+  .plate:nth-child(4n + 3) { grid-column: 1 / span 4; }
+  .plate:nth-child(4n + 4) { grid-column: 2 / -1; margin-top: 0; }
+  .plate--wide:nth-child(n) { grid-column: 1 / -1; }
+
+  .details > div { grid-template-columns: 6.5em minmax(0, 1fr); gap: 12px; }
+
+  .site-footer { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); row-gap: 8px; }
+  .site-footer .footer-name,
+  .site-footer .footer-address,
+  .site-footer .footer-links { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 @media print {
-  body { padding-bottom: 0; }
   .reservation, .skip-link { display: none; }
-  .site-header { min-height: 0; }
+  .navigation { display: none; }
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

@@ -9,20 +9,22 @@
 </head>
 <body class="inner-page">
   <a class="skip-link" href="#main">本文へ移動</a>
-  <header class="site-header">
+  <header class="site-header grid">
     <p class="site-title"><a href="index.html">pepel moco</a></p>
-    <p class="site-description">HAIR SALON / FUKUI / TSURUGA</p>
+    <p class="site-description">美容室　福井県敦賀市</p>
+    <nav class="navigation" aria-label="メインナビゲーション">
+      <a href="index.html">トップ</a>
+      <a href="menu.html" aria-current="page">メニュー・料金</a>
+      <a href="access.html">店舗情報</a>
+      <a href="reservation.html">ご予約</a>
+    </nav>
   </header>
-  <nav class="navigation" aria-label="メインナビゲーション">
-      <a href="index.html">HOME</a>
-      <a href="menu.html" aria-current="page">MENU</a>
-      <a href="access.html">ACCESS</a>
-  </nav>
+
   <main id="main" class="content" tabindex="-1">
-    <section class="section" aria-labelledby="menu-title">
-      <h1 class="page-title" id="menu-title">MENU</h1>
+    <section class="sheet menu-sheet grid" aria-labelledby="menu-title">
+      <h1 class="page-title" id="menu-title">メニュー・料金</h1>
       <h2 class="menu-category first-visit-title">FIRST VISIT</h2>
-      <p class="note">初めてのお客様は、初回のみカウンセリング料として ＋¥1,000 を頂戴しております。</p>
+      <p class="first-visit">初めてのお客様は、初回のみカウンセリング料として ＋¥1,000 を頂戴しております。</p>
       <!-- MENU EDIT START: 現在のLimeデータに基づくメニュー名・料金。 -->
       <h2 class="menu-category">CUT</h2>
       <dl class="details menu-prices">
@@ -77,12 +79,19 @@
         <div><dt>フェイスシェービング／顔剃り</dt><dd>¥2,000</dd></div>
       </dl>
       <!-- MENU EDIT END -->
-      <p class="note">ご予約については、<a href="index.html#reservation">予約のご案内</a>をご覧ください。</p>
+      <p class="note note-end">ご予約については、<a href="index.html#reservation">予約のご案内</a>をご覧ください。</p>
     </section>
   </main>
-  <footer class="site-footer">
-    <p>PEPEL MOCO<br>HAIR SALON / FUKUI / TSURUGA</p>
+
+  <footer class="site-footer grid">
+    <p class="footer-name">pepel moco</p>
+    <p class="footer-address">有限会社美容室ペペルモコ<br>〒914-0125 福井県敦賀市若葉町2-1115</p>
+    <p class="footer-links">
+      <a href="menu.html">メニュー・料金</a>
+      <a href="access.html">店舗情報</a>
+      <a href="index.html#instagram">Instagram</a>
+    </p>
   </footer>
-  <a class="reservation" href="reservation.html" aria-label="予約のご案内">RESERVATION　/ ご予約 <span aria-hidden="true">↗</span></a>
+  <a class="reservation" href="reservation.html" aria-label="予約のご案内">ご予約 <span aria-hidden="true">↗</span></a>
 </body>
 </html>

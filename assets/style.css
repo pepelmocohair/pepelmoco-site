@@ -70,6 +70,10 @@ dt, dd { margin: 0; }
 .menu-prices dd { text-align: right; white-space: nowrap; }
 .menu-note { display: block; margin-top: 4px; font-size: 12px; line-height: 1.7; font-weight: 400; color: var(--muted); }
 .note { font-size: 13px; color: var(--muted); }
+.reservation-notice { margin: 0 0 28px; padding: 16px 18px; border: 1px solid var(--ink); background: var(--accent); }
+.reservation-notice p { margin: 0; line-height: 1.8; }
+.reservation-notice p + p { margin-top: 6px; font-size: 14px; }
+.reservation-notice strong { font-weight: 600; }
 .site-footer { padding: 0 0 40px; font-size: 11px; letter-spacing: .08em; color: var(--muted); }
 .skip-link { position: fixed; top: 12px; left: 12px; z-index: 20; padding: 12px; background: var(--paper); transform: translateY(-200%); }
 .skip-link:focus { transform: translateY(0); }

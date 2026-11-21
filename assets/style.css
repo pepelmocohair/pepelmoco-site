@@ -56,8 +56,6 @@ dt, dd { margin: 0; }
 .home #news { grid-column: 2 / 12; display: grid; grid-template-columns: 1fr 3fr; gap: 24px; margin-top: 65px; }
 #news .section-title { margin-top: 5px; }
 #news .notice { display: grid; grid-template-columns: minmax(110px, 1fr) 3fr; column-gap: 24px; align-content: start; }
-.home #news .notice { grid-column: 2; }
-.home #news .notice + .notice { margin-top: 16px; }
 #news .news-date { grid-column: 1; grid-row: 1 / span 3; margin-top: 5px; }
 #news .notice h3, #news .notice p:not(.news-date) { grid-column: 2; }
 .instagram-section { grid-column: 3 / 7; margin-top: 130px; }

@@ -5,7 +5,7 @@
 
 ## ファイル
 
-- `index.html`: トップ、INFORMATION、InstagramとLINE予約の案内
+- `index.html`: トップ、INFORMATION、BLOG（Tumblr）とLINE予約の案内
 - `menu.html`: メニュー・料金
 - `access.html`: 店舗情報
 - `assets/style.css`: 全ページ共通のCSS
@@ -22,19 +22,14 @@ MENU/ACCESSも未確定情報を「準備中」としてあります。店舗情
 
 ## 外部URLを一か所で変更する
 
-全ページの固定RESERVATIONは `index.html#reservation` へ、フッターのInstagramは
-`index.html#instagram` へ案内します。URLはトップページの各案内内だけに記載します。
+全ページの固定RESERVATIONは `index.html#reservation` へ案内します。URLはトップページの各案内内だけに記載します。
 JavaScriptやビルドを使わず一か所で管理するため、各ページから案内を経由する方式です。
 固定RESERVATIONから外部サイトへ直接飛ぶ構成ではありません。
 
-### Instagram
+### BLOG（Tumblr）
 
-`index.html` の `INSTAGRAM URL` コメント直下にある `span` を次の形式へ置き換えます。
-`確定したHTTPSのURL` は実際のURLに変更してください。
-
-```html
-<a class="text-link" href="確定したHTTPSのURL">Instagramを見る ↗</a>
-```
+`index.html` の `BLOG URL` コメント直下にある `a` の `href` を変更します。
+現在は `https://pepelmoco-hair.tumblr.com/` です。
 
 ### LINE予約
 
